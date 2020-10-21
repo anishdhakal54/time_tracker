@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:time_tracker/app/sign_in/validators.dart';
 import 'package:time_tracker/common_widgets/form_submit_button.dart';
 import 'package:time_tracker/common_widgets/plaform_alert_dialog.dart';
@@ -37,10 +39,10 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         await widget.auth.createUserWithEmailAndPassword(_email, _password);
       }
       Navigator.of(context).pop();
-    } catch (e) {
+    }on FirebaseAuthException catch (e) {
       PlatformAlertDialog(
         title: 'SignIn failed',
-        content: e.toString(),
+        content: e.message,
         defaultActionText: 'OK',
       ).show(context);
     } finally {
