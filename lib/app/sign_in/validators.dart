@@ -1,17 +1,18 @@
+
 abstract class StringValidator {
   bool isValid(String value);
 }
 
-class NonEmpltyStringValidator implements StringValidator {
+class NonEmptyStringValidator implements StringValidator {
   @override
   bool isValid(String value) {
     return value.isNotEmpty;
   }
 }
 
-class EmailAndPasswordValidator {
-  final StringValidator emailValidator = NonEmpltyStringValidator();
-  final StringValidator passwordValidator = NonEmpltyStringValidator();
-  final String inValidPasswordErrorText = 'Password cannot be empty';
-  final String inValidEmailErrorText = 'Email cannot be empty';
+class EmailAndPasswordValidators {
+  final StringValidator emailValidator = NonEmptyStringValidator();
+  final StringValidator passwordValidator = NonEmptyStringValidator();
+  final String invalidEmailErrorText = 'Email can\'t be empty';
+  final String invalidPasswordErrorText = 'Password can\'t be empty';
 }

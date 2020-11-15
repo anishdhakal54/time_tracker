@@ -1,16 +1,18 @@
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 
 abstract class PlatformWidget extends StatelessWidget {
-  Widget buildCupertinoApp(BuildContext context);
-  Widget buildMaterialApp(BuildContext context);
+
+  Widget buildCupertinoWidget(BuildContext context);
+  Widget buildMaterialWidget(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
-      return buildCupertinoApp(context);
+      return buildCupertinoWidget(context);
     }
-    return buildMaterialApp(context);
+    return buildMaterialWidget(context);
   }
 }

@@ -1,5 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:flutter/services.dart';
 import 'package:time_tracker/app/sign_in/validators.dart';
 import 'package:time_tracker/common_widgets/form_submit_button.dart';
@@ -8,11 +11,7 @@ import 'package:time_tracker/services/auth.dart';
 
 enum EmailSignInFormType { signIn, register }
 
-class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidator {
-  EmailSignInForm({@required this.auth});
-
-  final AuthBase auth;
-
+class EmailSignInForm extends StatefulWidget with EmailAndPasswordValidators {
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
 }
@@ -24,11 +23,19 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   final FocusNode _passwordFocusNode = FocusNode();
 
   String get _email => _emailController.text;
-
   String get _password => _passwordController.text;
   EmailSignInFormType _formType = EmailSignInFormType.signIn;
   bool _submitted = false;
   bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    super.dispose();
+  }
 
   void _submit() async {
     setState(() {
@@ -36,15 +43,16 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
       _isLoading = true;
     });
     try {
+      final auth = Provider.of<AuthBase>(context);
       if (_formType == EmailSignInFormType.signIn) {
-        await widget.auth.signInWithEmailAndPassword(_email, _password);
+        await auth.signInWithEmailAndPassword(_email, _password);
       } else {
-        await widget.auth.createUserWithEmailAndPassword(_email, _password);
+        await auth.createUserWithEmailAndPassword(_email, _password);
       }
       Navigator.of(context).pop();
-    } on FirebaseAuthException catch (e) {
-      PlaformExceptionAlertDialog(
-        title: 'SignIn failed',
+    } on PlatformException catch (e) {
+      PlatformExceptionAlertDialog(
+        title: 'Sign in failed',
         exception: e,
       ).show(context);
     } finally {
@@ -55,10 +63,10 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   }
 
   void _emailEditingComplete() {
-    final newFocusNode = widget.emailValidator.isValid(_email)
+    final newFocus = widget.emailValidator.isValid(_email)
         ? _passwordFocusNode
         : _emailFocusNode;
-    FocusScope.of(context).requestFocus(newFocusNode);
+    FocusScope.of(context).requestFocus(newFocus);
   }
 
   void _toggleFormType() {
@@ -105,36 +113,36 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     bool showErrorText =
         _submitted && !widget.passwordValidator.isValid(_password);
     return TextField(
-      focusNode: _passwordFocusNode,
       controller: _passwordController,
+      focusNode: _passwordFocusNode,
       decoration: InputDecoration(
         labelText: 'Password',
-        errorText: showErrorText ? widget.inValidPasswordErrorText : null,
+        errorText: showErrorText ? widget.invalidPasswordErrorText : null,
         enabled: _isLoading == false,
       ),
       obscureText: true,
       textInputAction: TextInputAction.done,
-      onEditingComplete: _submit,
       onChanged: (password) => _updateState(),
+      onEditingComplete: _submit,
     );
   }
 
   TextField _buildEmailTextField() {
     bool showErrorText = _submitted && !widget.emailValidator.isValid(_email);
     return TextField(
-      focusNode: _emailFocusNode,
       controller: _emailController,
+      focusNode: _emailFocusNode,
       decoration: InputDecoration(
         labelText: 'Email',
         hintText: 'test@test.com',
-        errorText: showErrorText ? widget.inValidEmailErrorText : null,
+        errorText: showErrorText ? widget.invalidEmailErrorText : null,
         enabled: _isLoading == false,
       ),
       autocorrect: false,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
-      onEditingComplete: _emailEditingComplete,
       onChanged: (email) => _updateState(),
+      onEditingComplete: _emailEditingComplete,
     );
   }
 
@@ -150,7 +158,7 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     );
   }
 
-  _updateState() {
+  void _updateState() {
     setState(() {});
   }
 }

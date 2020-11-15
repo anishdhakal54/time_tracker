@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
@@ -70,7 +71,7 @@ class Auth implements AuthBase {
       final googleAuth = await googleAccount.authentication;
       if (googleAuth.accessToken != null && googleAuth.idToken != null) {
         final authResult = await _firebaseAuth.signInWithCredential(
-          auth.GoogleAuthProvider.credential(
+          GoogleAuthProvider.credential(
             idToken: googleAuth.idToken,
             accessToken: googleAuth.accessToken,
           ),
@@ -98,7 +99,7 @@ class Auth implements AuthBase {
     );
     if (result.accessToken != null) {
       final authResult = await _firebaseAuth.signInWithCredential(
-        auth.FacebookAuthProvider.credential(
+        FacebookAuthProvider.credential(
           result.accessToken.token,
         ),
       );
